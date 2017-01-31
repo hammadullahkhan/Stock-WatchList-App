@@ -21,7 +21,10 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^watch/', views.WatchList.as_view()),
+    url(r'^stock/', views.StockAPI.as_view()),
+    url(r'^watch/', views.WatchAPI.as_view()),
+    #url(r'^watch/(?P<pk>[0-9a-zA-Z]+)/$', views.WatchAPIAdmin.as_view()),
+    url(r'^pandas/', views.PandasAPI.as_view()),
     url(r'^$', views.index)
 ]
 

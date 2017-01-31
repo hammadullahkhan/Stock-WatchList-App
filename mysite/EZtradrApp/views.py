@@ -39,9 +39,7 @@ class WatchAPI(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-        print ('watch adding now')
         serializer = WatchSerializer(data=request.data)
-        print (serializer)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

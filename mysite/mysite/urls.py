@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^watch/', views.WatchAPI.as_view()),
     url(r'^asset/', views.AssetAPI.as_view()),
     url(r'^watchasset/', views.WatchAssetAPI.as_view()),    
+    url(r'^createwatch/', views.CreateWatchAPI.as_view()),    
     #url(r'^watch/(?P<pk>[0-9a-zA-Z]+)/$', views.WatchAPIAdmin.as_view()),
     #url(r'^pandas/', views.PandasAPI.as_view()),
     url(r'^$', views.index)

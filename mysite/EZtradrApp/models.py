@@ -12,7 +12,7 @@ class User(models.Model):
     email = models.CharField(max_length=200, unique=True)
 
     def __str__(self):
-        return self.name + "<"+ self.email +">"
+        return self.name + ":" + str(self.userId) + "<"+ self.email +">"
 
 
 """
@@ -25,7 +25,7 @@ class Watch(models.Model):
     watchName = models.CharField(max_length=50)
 
     def __str__(self):
-        return self.watchName + "<" + self.userId + ">"
+        return self.watchName + "<" + str(self.watchId) + ">"
 
 
 """
@@ -44,7 +44,7 @@ class Asset(models.Model):
     date = models.DateField(blank=True, null=True)
 
     def __str__(self):
-        return self.assetName + "<" + self.assetId + ">"
+        return self.assetName + "<" + str(self.assetId) + ">"
 
 """
 Model: WatchAsset

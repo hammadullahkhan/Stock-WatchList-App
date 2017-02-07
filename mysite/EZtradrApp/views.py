@@ -104,6 +104,39 @@ class WatchAssetAPI(APIView):
         assets = WatchAsset.objects.delete(pk)
         return Response(assets, status=status.HTTP_200_OK)
 
+class CreateWatchAPI(APIView):
+    
+    def post(self, request):
+        
+        #print ( request.data )
+        #print ( request.data['assetName'] )
+
+        data = {'assetName': request.data['assetName'], 'date': request.data['date'], 'open': request.data['open'], 'close': request.data['close'], 'volume': request.data['volume'], 'high': request.data['high'], 'low': request.data['low'], 'adjClose': request.data['adjClose']}
+        assetSerializer = AssetSerializer(data=data)
+        if assetSerializer.is_valid():
+            assetSerializer.save()
+        else:
+            return Response(assetSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        #print (assetSerializer)
+        #print (assetSerializer.data['assetId'])
+        
+        data = {'watchId': request.data['watchId'], 'assetId': request.data['assetId']}
+        watchAssetSerializer = WatchAssetSerializer(data=data)
+        if watchAssetSerializer.is_valid():
+            watchAssetSerializer.save()
+        else:
+            return Response(watchAssetSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+        if (assetSerializer and assetSerializer.data and assetSerializer.data['assetId'] > 0) and (watchAssetSerializer and watchAssetSerializer.data and watchAssetSerializer.data['watchAssetId'] > 0):
+            data = {'asset': assetSerializer.data, 'watchAsset': watchAssetSerializer.data}
+            return Response(data, status=status.HTTP_201_CREATED)
+
+        data = {'asset': assetSerializer.errors, 'watchAsset': watchAssetSerializer.errors}
+        return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+
 '''
 
 

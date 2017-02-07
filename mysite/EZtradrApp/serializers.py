@@ -1,18 +1,34 @@
 from rest_framework import serializers
-from .models import Stock, Watch
+from .models import User, Watch, Asset, WatchAsset
 
-class StockSerializer(serializers.ModelSerializer):
 
-    id = serializers.ReadOnlyField()
+class UserSerializer(serializers.ModelSerializer):
+
+    userId = serializers.ReadOnlyField()
     class Meta:
-        model = Stock
-        fields = ('id', 'ticker', 'volume', 'open', 'close', 'high', 'low', 'adjClose', 'date')
-        #fields = '__all__'
+        model = User
+        fields = '__all__'
+
 
 class WatchSerializer(serializers.ModelSerializer):
 
-    id = serializers.ReadOnlyField()
+    watchId = serializers.ReadOnlyField()
     class Meta:
         model = Watch
-        fields = ('id', 'ticker',)
-        #fields = '__all__'
+        fields = '__all__'
+
+
+class AssetSerializer(serializers.ModelSerializer):
+
+    assetId = serializers.ReadOnlyField()
+    class Meta:
+        model = Asset
+        fields = '__all__'
+
+
+class WatchAssetSerializer(serializers.ModelSerializer):
+
+    watchAssetId = serializers.ReadOnlyField()
+    class Meta:
+        model = WatchAsset
+        fields = '__all__'

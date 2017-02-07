@@ -3,8 +3,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from .models import Stock, Watch
-from .serializers import StockSerializer, WatchSerializer
+from .models import User, Watch, Asset, WatchAsset
+from .serializers import UserSerializer, WatchSerializer, AssetSerializer, WatchAssetSerializer
 
 from pandas_datareader import data, wb
 import pandas_datareader as web
@@ -12,25 +12,32 @@ import pandas_datareader as web
 import pandas_datareader.data as web
 import datetime
 
-class StockAPI(APIView):
+class UserAPI(APIView):
     def get(self, request):
-        stocks = Stock.objects.all()
-        serializer = StockSerializer(stocks, many=True)
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
     def post(self, request):
-        serializer = StockSerializer(data=request.data)
+        serializer = UserSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    '''
-    def delete(self, request):
-        stocks = Stock.objects.all().delete()
-        return Response(stocks, status=status.HTTP_200_OK)
-    '''
+    def put(self, request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        users = User.objects.delete(pk)
+        return Response(users, status=status.HTTP_200_OK)
+
 
 class WatchAPI(APIView):
     def get(self, request):
@@ -46,13 +53,58 @@ class WatchAPI(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    '''
+    def put(self, request):
+        serializer = WatchSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)        
+
     def delete(self, request, pk, format=None):
-        watch = Watch.get_object(pk)
+        watch = Watch.objects.delete(pk)
         watch.delete()
         return Response(watch, status=status.HTTP_200_OK)
-    '''
 
+
+class AssetAPI(APIView):
+    def get(self, request):
+        assets = Asset.objects.all()
+        serializer = AssetSerializer(assets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = AssetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        assets = Asset.objects.delete(pk)
+        return Response(assets, status=status.HTTP_200_OK)
+
+
+class WatchAssetAPI(APIView):
+    def get(self, request):
+        assets = WatchAsset.objects.all()
+        serializer = WatchAssetSerializer(assets, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = WatchAssetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None):
+        assets = WatchAsset.objects.delete(pk)
+        return Response(assets, status=status.HTTP_200_OK)
+
+'''
 
 
 class PandasAPI(APIView):
@@ -87,7 +139,7 @@ class PandasAPI(APIView):
 
 
         return Response(stocksData)
-
+'''
 
 
 # Create your views here.

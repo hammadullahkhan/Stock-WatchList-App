@@ -108,9 +108,6 @@ class CreateWatchAPI(APIView):
     
     def post(self, request):
         
-        #print ( request.data )
-        #print ( request.data['assetName'] )
-
         data = {'assetName': request.data['assetName'], 'date': request.data['date'], 'open': request.data['open'], 'close': request.data['close'], 'volume': request.data['volume'], 'high': request.data['high'], 'low': request.data['low'], 'adjClose': request.data['adjClose']}
         assetSerializer = AssetSerializer(data=data)
         if assetSerializer.is_valid():
@@ -118,9 +115,6 @@ class CreateWatchAPI(APIView):
         else:
             return Response(assetSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        #print (assetSerializer)
-        #print (assetSerializer.data['assetId'])
-        
         data = {'watchId': request.data['watchId'], 'assetId': request.data['assetId']}
         watchAssetSerializer = WatchAssetSerializer(data=data)
         if watchAssetSerializer.is_valid():

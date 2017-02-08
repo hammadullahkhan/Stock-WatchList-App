@@ -12,11 +12,17 @@ import pandas_datareader as web
 import pandas_datareader.data as web
 import datetime
 
-class UserAPI(APIView):
+
+"""
+User classes: List, Detail
+    - List Methods: GET, POST
+    - Detail Methods: GET, DELETE
+"""
+class UserList(APIView):
     def get(self, request):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = UserSerializer(data=request.data)
@@ -26,24 +32,37 @@ class UserAPI(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+class UserDetail(APIView):
+    def get(self, request, pk, format=None):
+        try:
+            users = User.objects.get(pk=pk)
+            serializer = UserSerializer(users)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            data = {"description": "Object Not Found"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def delete(self, request, pk, format=None):    
+        try:
+            user = get_object_or_404(User, pk=pk)
+            user.delete()        
+            data = {"deletedId": pk, "description": str(user)}
+            return Response(data, status=status.HTTP_202_ACCEPTED)            
+        except:
+            data = {"description": "Object Not Found"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
 
-    def delete(self, request, pk, format=None):
-        users = User.objects.delete(pk)
-        return Response(users, status=status.HTTP_200_OK)
 
-
-class WatchAPI(APIView):
-    def get(self, request):
+"""
+Watch classes: List, Detail
+    - List Methods: GET, POST
+    - Detail Methods: GET, DELETE
+"""
+class WatchList(APIView):
+    def get(self, request, format=None):        
         watch = Watch.objects.all()
         serializer = WatchSerializer(watch, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = WatchSerializer(data=request.data)
@@ -52,26 +71,38 @@ class WatchAPI(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+   
+class WatchDetail(APIView):
+    def get(self, request, pk, format=None):
+        try:
+            watch = Watch.objects.get(pk=pk)
+            serializer = WatchSerializer(watch)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            data = {"description": "Object Not Found"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
 
-    def put(self, request):
-        serializer = WatchSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)        
-
-    def delete(self, request, pk, format=None):
-        watch = Watch.objects.delete(pk)
-        watch.delete()
-        return Response(watch, status=status.HTTP_200_OK)
+    def delete(self, request, pk, format=None):                
+        try:
+            watch = get_object_or_404(Watch, pk=pk)
+            watch.delete()        
+            data = {"deletedId": pk, "description": str(watch)}
+            return Response(data, status=status.HTTP_202_ACCEPTED)      
+        except:
+            data = {"description": "Object Not Found"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
 
 
-class AssetAPI(APIView):
-    def get(self, request):
+"""
+Asset classes: List, Detail
+    - List Methods: GET, POST
+    - Detail Methods: GET, DELETE
+"""
+class AssetList(APIView):
+    def get(self, request, format=None):
         assets = Asset.objects.all()
         serializer = AssetSerializer(assets, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         serializer = AssetSerializer(data=request.data)
@@ -81,31 +112,69 @@ class AssetAPI(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request, pk, format=None):
-        assets = Asset.objects.delete(pk)
-        return Response(assets, status=status.HTTP_200_OK)
+class AssetDetail(APIView):
+    def get(self, request, pk, format=None):
+        try:
+            assets = Asset.objects.get(pk=pk)
+            serializer = AssetSerializer(assets)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            data = {"description": "Object Not Found"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk, format=None):    
+        try:            
+            asset = get_object_or_404(Asset, pk=pk)
+            asset.delete()        
+            data = {"deletedId": pk, "description": str(asset)}
+            return Response(data, status=status.HTTP_202_ACCEPTED)     
+        except:
+            data = {"description": "Object Not Found"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
 
 
-class WatchAssetAPI(APIView):
-    def get(self, request):
-        assets = WatchAsset.objects.all()
-        serializer = WatchAssetSerializer(assets, many=True)
-        return Response(serializer.data)
 
-    def post(self, request):
-        serializer = WatchAssetSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+"""
+WatchAsset classes
+    - Methods: GET, POST
+    - Detail Methods: GET, DELETE
+"""
+class WatchAssetList(APIView):    
+    def get(self, request, format=None):
+        try:
+            watches = Watch.objects.all()
+            wSerializer = WatchSerializer(watches, many=True)
+            
+            data = []
+            #print ( wSerializer.data )
+            for watch in wSerializer.data:
+                #print (watch['watchId'])
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                user = User.objects.get(userId=watch['userId'])
+                userSerializer = UserSerializer(user)
+                #print ( userSerializer.data )
 
-    def delete(self, request, pk, format=None):
-        assets = WatchAsset.objects.delete(pk)
-        return Response(assets, status=status.HTTP_200_OK)
+                if watch['watchId'] > 0:
+                    watchassets = WatchAsset.objects.all().filter(watchId=watch['watchId'])
+                    wASerializer = WatchAssetSerializer(watchassets, many=True)                
+                    #print ( wASerializer.data )
+                    for wAsset in wASerializer.data:
+                        if wAsset['assetId'] > 0:
+                            #print (wAsset['assetId'])    
+                            assets = Asset.objects.all().filter(assetId=wAsset['assetId'])
+                            aSer = AssetSerializer(assets, many=True)                
+                            #print ( aSer.data )
+                            for key in aSer.data:
+                                #print ( key )
+                                item = {'watchId': watch['watchId'], 'watchName': watch['watchName'], 'assetId': wAsset['assetId'], "assetName": key['assetName'], "volume": key['volume'], "open": key['open'], "close": key['close'], "low": key['low'], "high": key['high'], "adjClose": key['adjClose'], "date": key['date'], "userId": userSerializer.data['userId'], "name": userSerializer.data['name'], "email": userSerializer.data['email']}
+                                data.append(item)
 
-class CreateWatchAPI(APIView):
-    
+
+            return Response(data, status=status.HTTP_200_OK)
+        except(RuntimeError, TypeError, NameError):
+            data = {"description": "Object Not Found"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
+
     def post(self, request):
         
         data = {'assetName': request.data['assetName'], 'date': request.data['date'], 'open': request.data['open'], 'close': request.data['close'], 'volume': request.data['volume'], 'high': request.data['high'], 'low': request.data['low'], 'adjClose': request.data['adjClose']}
@@ -129,6 +198,28 @@ class CreateWatchAPI(APIView):
 
         data = {'asset': assetSerializer.errors, 'watchAsset': watchAssetSerializer.errors}
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
+
+class WatchAssetDetail(APIView):    
+    def get(self, request, pk, format=None):
+        try:
+            assets = Asset.objects.get(pk=pk)
+            serializer = AssetSerializer(assets)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except:
+            data = {"description": "Object Not Found"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, pk, format=None):                
+        try:
+            asset = get_object_or_404(Asset, pk=pk)
+            asset.delete()        
+            data = {"deletedId": pk, "description": str(asset)}
+            return Response(data, status=status.HTTP_202_ACCEPTED) 
+        except:
+            data = {"description": "Object Not Found"}
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+
 
 
 '''

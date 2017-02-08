@@ -2,11 +2,7 @@ from django.db import models
 
 # Create your models here.
 
-"""
-Model: User
-"""
 class User(models.Model):
-
     userId = models.AutoField(auto_created=True, primary_key=True, serialize=False, max_length=20)
     name = models.CharField(max_length=100)
     email = models.CharField(max_length=200, unique=True)
@@ -14,12 +10,7 @@ class User(models.Model):
     def __str__(self):
         return self.name + ":" + str(self.userId) + "<"+ self.email +">"
 
-
-"""
-Model: Watch
-"""
 class Watch(models.Model):
-
     watchId = models.AutoField(auto_created=True, primary_key=True, serialize=False, max_length=20)
     userId = models.ForeignKey(User, on_delete=models.CASCADE)
     watchName = models.CharField(max_length=50)
@@ -27,12 +18,7 @@ class Watch(models.Model):
     def __str__(self):
         return self.watchName + "<" + str(self.watchId) + ">"
 
-
-"""
-Model: Asset
-"""
 class Asset(models.Model):
-
     assetId = models.AutoField(auto_created=True, primary_key=True, serialize=False, max_length=20)
     assetName = models.CharField(max_length=50)
     open = models.CharField(max_length=50)
@@ -46,11 +32,7 @@ class Asset(models.Model):
     def __str__(self):
         return self.assetName + "<" + str(self.assetId) + ">"
 
-"""
-Model: WatchAsset
-"""
 class WatchAsset(models.Model):
-
     watchAssetId = models.AutoField(auto_created=True, primary_key=True, serialize=False, max_length=20)
     watchId = models.ForeignKey(Watch, on_delete=models.CASCADE)
     assetId = models.ForeignKey(Asset, on_delete=models.CASCADE)

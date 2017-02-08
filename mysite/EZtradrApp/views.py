@@ -17,6 +17,19 @@ import datetime
 User classes: List, Detail
     - List Methods: GET, POST
     - Detail Methods: GET, DELETE
+
+    GET Example:
+        http://localhost:8000/user/
+        http://localhost:8000/user/16
+        Response:
+            {"userId":2,"name":"ibad khan","email":"ibad.khan@msn.com"}
+    
+    POST Example:
+        Request body - key/value pair:            
+            name:ibad khan
+            email:ibad.khan@msn.com
+        Response:
+            {"userId":3,"name":"ibad khan","email":"ibad.khan@msn.com"}
 """
 class UserList(APIView):
     def get(self, request):
@@ -57,6 +70,19 @@ class UserDetail(APIView):
 Watch classes: List, Detail
     - List Methods: GET, POST
     - Detail Methods: GET, DELETE
+
+    GET Example:
+        http://localhost:8000/watch/
+        http://localhost:8000/watch/16
+        Response:
+            {"watchId":17,"watchName":"forex","userId":1}
+    
+    POST Example:
+        Request body - key/value pair:            
+            userId:5
+            watchName:forex
+        Response:
+            {"watchId":19,"watchName":"forex","userId":1}
 """
 class WatchList(APIView):
     def get(self, request, format=None):        
@@ -84,6 +110,13 @@ class WatchDetail(APIView):
 
     def delete(self, request, pk, format=None):                
         try:
+            watchassets = WatchAsset.objects.all().filter(watchId=pk)
+            wASerializer = WatchAssetSerializer(watchassets, many=True)                
+            for wAsset in wASerializer.data:
+                #print (wAsset)
+                asset = get_object_or_404(Asset, assetId=wAsset['assetId'])
+                asset.delete()
+
             watch = get_object_or_404(Watch, pk=pk)
             watch.delete()        
             data = {"deletedId": pk, "description": str(watch)}
@@ -93,79 +126,51 @@ class WatchDetail(APIView):
             return Response(data, status=status.HTTP_404_NOT_FOUND)
 
 
-"""
-Asset classes: List, Detail
-    - List Methods: GET, POST
-    - Detail Methods: GET, DELETE
-"""
-class AssetList(APIView):
-    def get(self, request, format=None):
-        assets = Asset.objects.all()
-        serializer = AssetSerializer(assets, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request):
-        serializer = AssetSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class AssetDetail(APIView):
-    def get(self, request, pk, format=None):
-        try:
-            assets = Asset.objects.get(pk=pk)
-            serializer = AssetSerializer(assets)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
-            data = {"description": "Object Not Found"}
-            return Response(data, status=status.HTTP_404_NOT_FOUND)
-
-    def delete(self, request, pk, format=None):    
-        try:            
-            asset = get_object_or_404(Asset, pk=pk)
-            asset.delete()        
-            data = {"deletedId": pk, "description": str(asset)}
-            return Response(data, status=status.HTTP_202_ACCEPTED)     
-        except:
-            data = {"description": "Object Not Found"}
-            return Response(data, status=status.HTTP_404_NOT_FOUND)
-
-
 
 """
-WatchAsset classes
+Asset classes
     - Methods: GET, POST
-    - Detail Methods: GET, DELETE
+    - Detail Methods: GET
+
+    GET Example:
+        http://localhost:8000/asset/
+        http://localhost:8000/asset/16
+        Response:
+            [{"watchId":16,"watchName":"commodities","assetId":36,"assetName":"ms","volume":600,"open":"4","close":"10","low":"4","high":"5","adjClose":"5","date":"2017-02-06","userId":1,"name":"hammad","email":"hammad@msn.com"}]
+    
+    POST Example:
+        Request body - key/value pair:            
+            watchId:16
+            assetName:ms
+            volume:600
+            open:4
+            close:10
+            high:5
+            low:4
+            adjClose:5        
+            date:2017-02-06
+        Response:
+            {"asset":{"assetId":36,"assetName":"ms","open":"4","close":"10","volume":600,"high":"5","low":"4","adjClose":"5","date":"2017-02-06"},"watchAsset":{"watchAssetId":20,"watchId":16,"assetId":36}}
 """
-class WatchAssetList(APIView):    
+class AssetList(APIView):    
     def get(self, request, format=None):
         try:
             watches = Watch.objects.all()
             wSerializer = WatchSerializer(watches, many=True)
             
             data = []
-            #print ( wSerializer.data )
             for watch in wSerializer.data:
-                #print (watch['watchId'])
-
                 user = User.objects.get(userId=watch['userId'])
                 userSerializer = UserSerializer(user)
-                #print ( userSerializer.data )
 
                 if watch['watchId'] > 0:
                     watchassets = WatchAsset.objects.all().filter(watchId=watch['watchId'])
                     wASerializer = WatchAssetSerializer(watchassets, many=True)                
-                    #print ( wASerializer.data )
                     for wAsset in wASerializer.data:
                         if wAsset['assetId'] > 0:
-                            #print (wAsset['assetId'])    
                             assets = Asset.objects.all().filter(assetId=wAsset['assetId'])
                             aSer = AssetSerializer(assets, many=True)                
-                            #print ( aSer.data )
                             for key in aSer.data:
-                                #print ( key )
                                 item = {'watchId': watch['watchId'], 'watchName': watch['watchName'], 'assetId': wAsset['assetId'], "assetName": key['assetName'], "volume": key['volume'], "open": key['open'], "close": key['close'], "low": key['low'], "high": key['high'], "adjClose": key['adjClose'], "date": key['date'], "userId": userSerializer.data['userId'], "name": userSerializer.data['name'], "email": userSerializer.data['email']}
                                 data.append(item)
 
@@ -176,15 +181,14 @@ class WatchAssetList(APIView):
             return Response(data, status=status.HTTP_404_NOT_FOUND)
 
     def post(self, request):
-        
-        data = {'assetName': request.data['assetName'], 'date': request.data['date'], 'open': request.data['open'], 'close': request.data['close'], 'volume': request.data['volume'], 'high': request.data['high'], 'low': request.data['low'], 'adjClose': request.data['adjClose']}
+        data = {'assetName': request.POST.get('assetName'), 'date': request.POST.get('date'), 'open': request.POST.get('open'), 'close': request.POST.get('close'), 'volume': request.POST.get('volume'), 'high': request.POST.get('high'), 'low': request.POST.get('low'), 'adjClose': request.POST.get('adjClose')}
         assetSerializer = AssetSerializer(data=data)
         if assetSerializer.is_valid():
             assetSerializer.save()
         else:
             return Response(assetSerializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        data = {'watchId': request.data['watchId'], 'assetId': request.data['assetId']}
+        data = {'watchId': request.POST.get('watchId'), 'assetId': assetSerializer.data['assetId']}
         watchAssetSerializer = WatchAssetSerializer(data=data)
         if watchAssetSerializer.is_valid():
             watchAssetSerializer.save()
@@ -197,30 +201,46 @@ class WatchAssetList(APIView):
             return Response(data, status=status.HTTP_201_CREATED)
 
         data = {'asset': assetSerializer.errors, 'watchAsset': watchAssetSerializer.errors}
+        
         return Response(data, status=status.HTTP_400_BAD_REQUEST)
 
-class WatchAssetDetail(APIView):    
+class AssetDetail(APIView):    
     def get(self, request, pk, format=None):
         try:
-            assets = Asset.objects.get(pk=pk)
-            serializer = AssetSerializer(assets)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except:
+            watch = Watch.objects.get(watchId=pk)
+            wSerializer = WatchSerializer(watch)
+            watch = wSerializer.data
+            
+            data = []
+            user = User.objects.get(userId=watch['userId'])
+            userSerializer = UserSerializer(user)
+            
+            if watch['watchId'] > 0:
+                watchassets = WatchAsset.objects.all().filter(watchId=watch['watchId'])
+                wASerializer = WatchAssetSerializer(watchassets, many=True)                
+                for wAsset in wASerializer.data:
+                    if wAsset['assetId'] > 0:
+                        assets = Asset.objects.all().filter(assetId=wAsset['assetId'])
+                        aSer = AssetSerializer(assets, many=True)                
+                        for key in aSer.data:
+                            item = {'watchId': watch['watchId'], 'watchName': watch['watchName'], 'assetId': wAsset['assetId'], "assetName": key['assetName'], "volume": key['volume'], "open": key['open'], "close": key['close'], "low": key['low'], "high": key['high'], "adjClose": key['adjClose'], "date": key['date'], "userId": userSerializer.data['userId'], "name": userSerializer.data['name'], "email": userSerializer.data['email']}
+                            data.append(item)
+
+            return Response(data, status=status.HTTP_200_OK)
+        except(RuntimeError, TypeError, NameError):
             data = {"description": "Object Not Found"}
             return Response(data, status=status.HTTP_404_NOT_FOUND)
 
-    def delete(self, request, pk, format=None):                
-        try:
+    def delete(self, request, pk, format=None):    
+        try:            
             asset = get_object_or_404(Asset, pk=pk)
             asset.delete()        
             data = {"deletedId": pk, "description": str(asset)}
-            return Response(data, status=status.HTTP_202_ACCEPTED) 
+            return Response(data, status=status.HTTP_202_ACCEPTED)     
         except:
             data = {"description": "Object Not Found"}
             return Response(data, status=status.HTTP_404_NOT_FOUND)
-
-
-
+    
 
 '''
 

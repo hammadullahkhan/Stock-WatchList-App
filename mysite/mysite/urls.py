@@ -31,12 +31,6 @@ urlpatterns = [
     url(r'^asset/$', views.AssetList.as_view()),
     url(r'^asset/(?P<pk>[0-9]+)/$', views.AssetDetail.as_view()),
 
-    #url(r'^watchasset/$', views.WatchAssetList.as_view()),    
-    #url(r'^watchasset/(?P<pk>[0-9]+)/$', views.WatchAssetDetail.as_view()),
-
-    url(r'^watchasset/$', views.WatchAssetList.as_view()),
-    url(r'^watchasset/(?P<pk>[0-9]+)/$', views.WatchAssetDetail.as_view()),
-
     #url(r'^pandas/', views.PandasAPI.as_view()),
     url(r'^$', views.index)
 ]
